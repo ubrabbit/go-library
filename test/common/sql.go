@@ -1,4 +1,4 @@
-package main
+package common
 
 import (
 	"context"
@@ -11,16 +11,8 @@ import (
 	log "go-library/log"
 )
 
-const (
-	USERNAME string = "umail"
-	PASSWORD string = "123456"
-	HOST     string = "192.168.1.78"
-	PORT     int    = 6033
-	DBNAME   string = "umail"
-)
-
-func test_db_1() {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8", USERNAME, PASSWORD, HOST, PORT, DBNAME)
+func ExampleConnect(user string, pwd string, host string, port int, dbname string) *DB {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8", user, pwd, host, port, dbname)
 	dsn = dsn + "?timeout=5s&readTimeout=5s&writeTimeout=5s&parseTime=true&loc=Local&charset=utf8"
 	c := &Config{
 		Addr:         "test",
@@ -33,31 +25,49 @@ func test_db_1() {
 		TranTimeout:  time.Duration(time.Minute),
 	}
 	db := NewMySQL(c)
-	defer db.Close()
+	return db
+}
 
+func ExamplePing(db *DB) {
 	if err := db.Ping(context.TODO()); err != nil {
-		log.Error("MySQL: ping error(%v)", err)
+		log.Fatal("MySQL: ping error(%v)", err)
 	} else {
-		fmt.Println("MySQL: ping ok")
-	}
-
-	table := "CREATE TABLE IF NOT EXISTS `test` (`id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增ID', `name` varchar(16) NOT NULL DEFAULT '' COMMENT '名称', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8"
-	if _, err := db.Exec(context.TODO(), table); err != nil {
-		log.Error("MySQL: create table error(%v)", err)
-	} else {
-		fmt.Println("MySQL: create table ok")
-	}
-
-	sql := "INSERT INTO test(name) VALUES(?)"
-	if _, err := db.Exec(context.TODO(), sql, "test"); err != nil {
-		log.Error("MySQL: insert error(%v)", err)
-	} else {
-		fmt.Println("MySQL: insert ok")
+		log.Info("MySQL: ping ok")
 	}
 }
 
-func main() {
-	fmt.Println("start")
+func ExampleTable(db *DB) {
+	table := "CREATE TABLE IF NOT EXISTS `test` (`id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增ID', `name` varchar(16) NOT NULL DEFAULT '' COMMENT '名称', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8"
+	if _, err := db.Exec(context.TODO(), table); err != nil {
+		log.Fatal("MySQL: create table error(%v)", err)
+	} else {
+		log.Info("MySQL: create table ok")
+	}
+}
 
-	test_db_1()
+func ExampleInsert(db *DB) {
+	sql := "INSERT INTO test(name) VALUES(?)"
+	if _, err := db.Exec(context.TODO(), sql, "test"); err != nil {
+		log.Fatal("MySQL: insert error(%v)", err)
+	} else {
+		log.Info("MySQL: insert ok")
+	}
+}
+
+func ExampleQuery(db *DB) {
+	sql := "SELECT name FROM test WHERE name=?"
+	rows, err := db.Query(context.TODO(), sql, "test")
+	if err != nil {
+		log.Fatal("MySQL: query error(%v)", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		name := ""
+		if err := rows.Scan(&name); err != nil {
+			log.Fatal("MySQL: query scan error(%v)", err)
+		} else if name != "test" {
+			log.Fatal("MySQL: query name error: %s", name)
+		}
+	}
+	log.Info("MySQL: query ok")
 }
