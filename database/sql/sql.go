@@ -38,6 +38,19 @@ type conn struct {
 }
 
 // Tx transaction.
+/*
+这个结构存储了context.Context，这个是官方文档不推荐的。
+	Do not store Contexts inside a struct type; instead, pass a Context explicitly to each function that needs it.
+	The Context should be the first parameter, typically named ctx: [...]
+但这种限制其实是一种严格的规范，有人提出：
+	While we've told people not to add contexts to structs, I think that guidance is over-aggressive.
+	The real advice is not to store contexts. They should be passed along like parameters.
+	But if the struct is essentially just a parameter, it's okay.
+	I think this concern can be addressed with package-level documentation and examples.
+
+https://github.com/golang/go/issues/14660
+https://github.com/golang/go/issues/22602
+*/
 type Tx struct {
 	db     *conn
 	tx     *sql.Tx
