@@ -10,7 +10,7 @@ import (
 
 import (
 	log "go-library/log"
-	. "go-library/test/common"
+	. "go-library/test/example"
 )
 
 func TestMySQL(t *testing.T) {

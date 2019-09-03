@@ -1,4 +1,4 @@
-package common
+package example
 
 import (
 	"context"
@@ -9,6 +9,14 @@ import (
 import (
 	. "go-library/database/sql"
 	log "go-library/log"
+)
+
+const (
+	USERNAME string = "umail"
+	PASSWORD string = "123456"
+	HOST     string = "192.168.1.78"
+	PORT     int    = 6033
+	DBNAME   string = "umail"
 )
 
 func ExampleConnect(user string, pwd string, host string, port int, dbname string) *DB {

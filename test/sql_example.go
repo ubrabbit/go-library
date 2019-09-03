@@ -2,15 +2,7 @@ package main
 
 import (
 	log "go-library/log"
-	. "go-library/test/common"
-)
-
-const (
-	USERNAME string = "umail"
-	PASSWORD string = "123456"
-	HOST     string = "192.168.1.78"
-	PORT     int    = 6033
-	DBNAME   string = "umail"
+	. "go-library/test/example"
 )
 
 func main() {
